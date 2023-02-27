@@ -6,6 +6,7 @@ import com.nd705.myBot.entity.Ads;
 import com.nd705.myBot.entity.AdsRepository;
 import com.nd705.myBot.entity.User;
 import com.nd705.myBot.entity.UserRepository;
+import com.nd705.myBot.service.parsrers.ParseService;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,11 +52,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.config = config;
         //Главное меню
         List<BotCommand> listofCommands = new ArrayList<>();
-        listofCommands.add(new BotCommand("/start", "get a welcome message"));
-        listofCommands.add(new BotCommand("/parse", "parse information from sites"));
-        listofCommands.add(new BotCommand("/wallet", "financial accounting"));
-        listofCommands.add(new BotCommand("/info", "about me"));
-        listofCommands.add(new BotCommand("/settings", "set your preferences"));
+        listofCommands.add(new BotCommand("/start", "активация и регистрация"));
+        listofCommands.add(new BotCommand("/parse", "получение информации с сайтов"));
+        listofCommands.add(new BotCommand("/wallet", "кошелек"));
+        listofCommands.add(new BotCommand("/info", "Обо мне"));
+        listofCommands.add(new BotCommand("/settings", "настройки"));
         try {
             this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
@@ -97,7 +98,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
 
                     case "/parse":
-                        chooseInfoToParse(chatId, "Choose parse option");
+                        chooseInfoToParse(chatId, "Выберите из списка:");
 
                         break;
 
@@ -109,9 +110,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                         prepareAndSendMessage(chatId, "Here will be information about me");
                         break;
 
-                    case "kg_banks":
+                    //Parse
+                    case "Курс обмена ЦБ, Кыргызстан":
 
                         prepareAndSendMessage(chatId, ParseService.parseKgBank());
+                        break;
+
+                    case "Погода":
+
+                        prepareAndSendMessage(chatId, "тут будет погода");
+                        break;
+
+                    case "Прогноз северного сияния":
+
+                        prepareAndSendMessage(chatId, "тут будет прогноз северного сияния");
                         break;
 
 
@@ -200,6 +212,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
+        message.setParseMode("HTML");
 
 //        //клавиатура
 //        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
@@ -237,12 +250,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         // первый ряд
         KeyboardRow row = new KeyboardRow();
-
-        row.add("kg_banks");
-        row.add("weather_for_sup");
-        row.add("aurora_Lights");
-
+        row.add("Курс обмена ЦБ, Кыргызстан");
         keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Погода");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Прогноз северного сияния");
+        keyboardRows.add(row);
+
 
         keyboardMarkup.setKeyboard(keyboardRows);
 
@@ -276,6 +294,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void prepareAndSendMessage(long chatId, String textToSend){
         SendMessage message = new SendMessage();
+        message.enableMarkdown(true);
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
         executeMessage(message);
