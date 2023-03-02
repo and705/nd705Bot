@@ -6,7 +6,9 @@ import com.nd705.myBot.entity.Ads;
 import com.nd705.myBot.entity.AdsRepository;
 import com.nd705.myBot.entity.User;
 import com.nd705.myBot.entity.UserRepository;
+import com.nd705.myBot.entity.weather.Weather;
 import com.nd705.myBot.service.parsrers.ParseService;
+import com.nd705.myBot.service.parsrers.ParseWeather;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,8 +119,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
 
                     case "Погода":
+                        Weather[] weather = ParseWeather.getWeatherFromOpenMeteo(16.07, 108.22);
 
-                        prepareAndSendMessage(chatId, "тут будет погода");
+
+                        String forecast = ParseWeather.getOneDayFromWeatherArray(weather, 1, 1);
+                        prepareAndSendMessage(chatId, forecast);
                         break;
 
                     case "Прогноз северного сияния":

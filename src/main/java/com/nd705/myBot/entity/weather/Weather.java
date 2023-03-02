@@ -1,4 +1,4 @@
-package com.nd705.myBot.entity;
+package com.nd705.myBot.entity.weather;
 
 public class Weather {
     private String time;

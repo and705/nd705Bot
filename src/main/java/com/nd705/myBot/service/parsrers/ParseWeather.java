@@ -1,7 +1,8 @@
 package com.nd705.myBot.service.parsrers;
 
 
-import com.nd705.myBot.entity.Weather;
+import com.nd705.myBot.entity.weather.City;
+import com.nd705.myBot.entity.weather.Weather;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -9,16 +10,31 @@ import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ParseWeather {
+    public static Map<String, City> cities = new HashMap<>();
+    public static void initialization(){
+        cities.put("Danang", new City("Danang", 16.07, 108.22));
+        cities.put("Vyborg", new City("Выборг", 60.71, 28.75));
+        cities.put("Lahta", new City("Лахтинский разлив", 60.00, 30.18));
+        cities.put("Spb", new City("Санкт-Петербург", 59.95, 30.34));
+        cities.put("Siverskii", new City("Сиверский", 59.36, 30.10));
+        cities.put("Vuoksa", new City("Вуокса", 60.88, 29.83));
+    }
+
+
+
 
     public static Weather[] getWeatherFromOpenMeteo  (double latitude, double longitude){
         String json = new String();
         try {
             json = Jsoup.connect("https://api.open-meteo.com/v1/forecast?" +
-                            "latitude=16.07&" +
-                            "longitude=108.22&" +
+                            "latitude="+ latitude + "&" +
+                            "longitude=" + longitude +"&" +
                             "hourly=" +
                             "temperature_2m," +
                             "relativehumidity_2m," +
@@ -32,7 +48,7 @@ public class ParseWeather {
 
 
         } catch (IOException e) {
-            System.out.println("не удалось получить данные с https://api.open-meteo.com");
+            System.out.println("не удалось получить данные от https://api.open-meteo.com");
         }
 
         Object JSONobj = null;
@@ -69,20 +85,50 @@ public class ParseWeather {
 
         }
 
+//        for (Weather w:weather
+//        ) {
+//            System.out.println(w.toString());
+//
+//        }
+        return weather;
+    }
 
+    public static String getOneDayFromWeatherArray(Weather[] weather, int days, int hours){
+        StringBuilder OneDayForeCast = new StringBuilder();
+        OneDayForeCast.append(String.format("`"));
+        OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n", "Время","Темп.","Влажн.","Дождь","Облачн.","Ветер","Напр.","Порывы"));
+        OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n", "чч:мм","град.С","%","%","%","м/с","градю","м/с"));
 
+        for (int i = 0; i < days*24; i+=hours) {
+            if (i % 24 == 0) {
+                OneDayForeCast.append(weather[i].getTime() + "\n");
+            }
+            OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n",
+                    (i) % 24 ,
+                    weather[i].getTemperature_2m(),
+                    weather[i].getRelativehumidity_2m(),
+                    weather[i].getPrecipitation_probability(),
+                    weather[i].getCloudcover(),
+                    weather[i].getWindspeed_10m(),
+                    weather[i].getWinddirection_10m(),
+                    weather[i].getWindgusts_10m()));
 
-        for (Weather w:weather
-        ) {
-            System.out.println(w.toString());
 
         }
-        return weather;
+        OneDayForeCast.append(String.format("`"));
+        return OneDayForeCast.toString();
+
     }
 
     public static void main(String[] args) throws ParseException {
 
-       getWeatherFromOpenMeteo(12, 2);
+        Weather[] weather = getWeatherFromOpenMeteo(16.07, 108.22); //Дананг
+        System.out.println(getOneDayFromWeatherArray(weather, 3,3));
+//        getWeatherFromOpenMeteo(60.71, 28.75); //Выборг
+//        getWeatherFromOpenMeteo(60.00, 30.18); //Лахтинский разлив
+//        getWeatherFromOpenMeteo(59.95, 30.34); //Санкт-Петербург
+//        getWeatherFromOpenMeteo(59.36, 30.10); //Сиверский
+//        getWeatherFromOpenMeteo(60.88, 29.83); //Вуокса
 
     }
 }
