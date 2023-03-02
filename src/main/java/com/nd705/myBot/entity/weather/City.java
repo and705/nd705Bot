@@ -1,9 +1,10 @@
 package com.nd705.myBot.entity.weather;
 
+
+
+
 public class City {
     private String cityName;
-
-
 
     private Double latitude;
     private Double longitude;

@@ -6,9 +6,10 @@ import com.nd705.myBot.entity.Ads;
 import com.nd705.myBot.entity.AdsRepository;
 import com.nd705.myBot.entity.User;
 import com.nd705.myBot.entity.UserRepository;
+import com.nd705.myBot.entity.weather.City;
 import com.nd705.myBot.entity.weather.Weather;
-import com.nd705.myBot.service.parsrers.ParseService;
-import com.nd705.myBot.service.parsrers.ParseWeather;
+import com.nd705.myBot.service.parsrers.ParseBankService;
+import com.nd705.myBot.service.parsrers.ParseWeatherService;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -41,6 +44,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private AdsRepository adsRepository;
 
+
+
+
     final BotConfig config;
     static final String HELP_TEXT = "This bot is created to demonstrate \n\n " +
             "You can execute commands from the main menu on the left or right\n\n" +
@@ -49,6 +55,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     static final String YES_BUTTON = "YES_BUTTON";
     static final String NO_BUTTON = "NO_BUTTON";
     static final String ERROR_TEXT = "Error occurred: ";
+    static final int nWeatherLines = 168;
+    static final int forcastDays = 7;
+    static final int forcastHoursInt = 6;
+    static Map<String, City> cities = new HashMap<>();
+
+
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -64,6 +76,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("Error setting bot's command list " + e.getMessage());
         }
+
+
+        {
+            cities.put("Danang", new City("Danang", 16.07, 108.22));
+            cities.put("Vyborg", new City("Выборг", 60.71, 28.75));
+            cities.put("Lahta", new City("Лахтинский разлив", 60.00, 30.18));
+            cities.put("SPb", new City("Санкт Петербург", 59.95, 30.34));
+            cities.put("Siverskii", new City("Сиверский", 59.36, 30.10));
+            cities.put("Vuoksa", new City("Вуокса", 60.88, 29.83));
+        }
     }
 
     @Override
@@ -78,6 +100,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        StringBuilder forecast;
+        Weather[] weather;
+
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
@@ -115,20 +140,46 @@ public class TelegramBot extends TelegramLongPollingBot {
                     //Parse
                     case "Курс обмена ЦБ, Кыргызстан":
 
-                        prepareAndSendMessage(chatId, ParseService.parseKgBank());
+                        prepareAndSendMessage(chatId, ParseBankService.parseKgBank());
                         break;
-
+                    //Parse / погода
                     case "Погода":
-                        Weather[] weather = ParseWeather.getWeatherFromOpenMeteo(16.07, 108.22);
-
-
-                        String forecast = ParseWeather.getOneDayFromWeatherArray(weather, 1, 1);
-                        prepareAndSendMessage(chatId, forecast);
+                        chooseCity(chatId, "Выберите город:");
                         break;
+
+                    case "Да Нанг":
+                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Danang"));
+                        break;
+
+                    case "Санкт Петербург":
+                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "SPb"));
+                        break;
+
+                    case "Выборг":
+                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Vyborg"));
+                        break;
+
+                    case "Лахта":
+                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Lahta"));
+                        break;
+
+                    case "Сиверский":
+                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Siverskii"));
+                        break;
+
+                    case "Вуокса":
+                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Vuoksa"));
+                        break;
+
+
 
                     case "Прогноз северного сияния":
 
                         prepareAndSendMessage(chatId, "тут будет прогноз северного сияния");
+                        break;
+
+                    case "Назад":
+                        chooseCity(chatId, "Выберите город:");
                         break;
 
 
@@ -136,21 +187,21 @@ public class TelegramBot extends TelegramLongPollingBot {
                         prepareAndSendMessage(chatId, "Sorry, command wasn't recognized");
                 }
             }
-        } else if (update.hasCallbackQuery()) {
-            String callbackData = update.getCallbackQuery().getData();
-            long messageId = update.getCallbackQuery().getMessage().getMessageId();
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-
-            if (callbackData.equals(YES_BUTTON)) {
-                String text = "You pressed YES button";
-                executeEditMessageText(text, chatId, messageId);
-
-            } else if (callbackData.equals(NO_BUTTON)) {
-                String text = "You pressed NO button";
-                executeEditMessageText(text, chatId, messageId);
-            }
-
-        }
+        } //else if (update.hasCallbackQuery()) {
+//            String callbackData = update.getCallbackQuery().getData();
+//            long messageId = update.getCallbackQuery().getMessage().getMessageId();
+//            long chatId = update.getCallbackQuery().getMessage().getChatId();
+//
+//            if (callbackData.equals(YES_BUTTON)) {
+//                String text = "You pressed YES button";
+//                executeEditMessageText(text, chatId, messageId);
+//
+//            } else if (callbackData.equals(NO_BUTTON)) {
+//                String text = "You pressed NO button";
+//                executeEditMessageText(text, chatId, messageId);
+//            }
+//
+//        }
 
     }
 
@@ -217,7 +268,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
-        message.setParseMode("HTML");
+        message.setParseMode("MarkdownV2");
 
 //        //клавиатура
 //        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
@@ -245,10 +296,18 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(message);
     }
 
+    private String getCityWeather(Weather[] weather,  String city){
+        weather = ParseWeatherService.getWeatherFromOpenMeteo(cities.get(city).getLatitude(), cities.get(city).getLongitude());
+        StringBuilder forecast = new StringBuilder("Прогноз погоды в " + cities.get(city).getCityName() + "\n\n");
+        forecast.append(ParseWeatherService.getWeatherTableFull(weather, forcastDays, forcastHoursInt));
+        return forecast.toString();
+    }
+
     private void chooseInfoToParse(long chatId, String textToSend){
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
+        message.setParseMode("MarkdownV2");
                 //клавиатура
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -266,6 +325,63 @@ public class TelegramBot extends TelegramLongPollingBot {
         row.add("Прогноз северного сияния");
         keyboardRows.add(row);
 
+
+        keyboardMarkup.setKeyboard(keyboardRows);
+
+        message.setReplyMarkup(keyboardMarkup);
+        executeMessage(message);
+    }
+
+    private void chooseCity(long chatId, String textToSend){
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        message.setParseMode("MarkdownV2");
+        //клавиатура
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        // первый ряд
+        KeyboardRow row = new KeyboardRow();
+        row.add("Да Нанг");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Санкт Петербург");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Сиверское");
+        row.add("Лахта");
+        row.add("Выборг");
+        row.add("Вуокса");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Москва");
+        keyboardRows.add(row);
+
+
+        keyboardMarkup.setKeyboard(keyboardRows);
+
+        message.setReplyMarkup(keyboardMarkup);
+        executeMessage(message);
+    }
+
+    private void chooseBack(long chatId, String textToSend){
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        message.setParseMode("MarkdownV2");
+        //клавиатура
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        // первый ряд
+        KeyboardRow row = new KeyboardRow();
+        row.add("Назад");
+
+        keyboardRows.add(row);
 
         keyboardMarkup.setKeyboard(keyboardRows);
 
@@ -315,8 +431,5 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
     }
-
-
-
 
 }

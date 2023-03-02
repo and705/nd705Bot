@@ -1,32 +1,17 @@
 package com.nd705.myBot.service.parsrers;
 
 
-import com.nd705.myBot.entity.weather.City;
 import com.nd705.myBot.entity.weather.Weather;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class ParseWeather {
-    public static Map<String, City> cities = new HashMap<>();
-    public static void initialization(){
-        cities.put("Danang", new City("Danang", 16.07, 108.22));
-        cities.put("Vyborg", new City("Выборг", 60.71, 28.75));
-        cities.put("Lahta", new City("Лахтинский разлив", 60.00, 30.18));
-        cities.put("Spb", new City("Санкт-Петербург", 59.95, 30.34));
-        cities.put("Siverskii", new City("Сиверский", 59.36, 30.10));
-        cities.put("Vuoksa", new City("Вуокса", 60.88, 29.83));
-    }
-
-
+@Service
+public class ParseWeatherService {
 
 
     public static Weather[] getWeatherFromOpenMeteo  (double latitude, double longitude){
@@ -41,7 +26,8 @@ public class ParseWeather {
                             "precipitation_probability," +
                             "cloudcover,windspeed_10m," +
                             "winddirection_10m," +
-                            "windgusts_10m")
+                            "windgusts_10m"+
+                            "&timezone=auto")
                     .ignoreContentType(true)
                     .execute()
                     .body();
@@ -93,11 +79,11 @@ public class ParseWeather {
         return weather;
     }
 
-    public static String getOneDayFromWeatherArray(Weather[] weather, int days, int hours){
+    public static String getWeatherTableFull(Weather[] weather, int days, int hours){
         StringBuilder OneDayForeCast = new StringBuilder();
         OneDayForeCast.append(String.format("`"));
-        OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n", "Время","Темп.","Влажн.","Дождь","Облачн.","Ветер","Напр.","Порывы"));
-        OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n", "чч:мм","град.С","%","%","%","м/с","градю","м/с"));
+        OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n", "Время","Темп.","Дождь","Облачн.","Ветер","Напр.","Порывы","Влажн."));
+        OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n", "чч:мм","град.С","%","%","м/с","град.","м/с","%"));
 
         for (int i = 0; i < days*24; i+=hours) {
             if (i % 24 == 0) {
@@ -106,12 +92,12 @@ public class ParseWeather {
             OneDayForeCast.append(String.format("|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|%-7s|\n",
                     (i) % 24 ,
                     weather[i].getTemperature_2m(),
-                    weather[i].getRelativehumidity_2m(),
                     weather[i].getPrecipitation_probability(),
                     weather[i].getCloudcover(),
                     weather[i].getWindspeed_10m(),
                     weather[i].getWinddirection_10m(),
-                    weather[i].getWindgusts_10m()));
+                    weather[i].getWindgusts_10m(),
+                    weather[i].getRelativehumidity_2m()));
 
 
         }
@@ -123,7 +109,7 @@ public class ParseWeather {
     public static void main(String[] args) throws ParseException {
 
         Weather[] weather = getWeatherFromOpenMeteo(16.07, 108.22); //Дананг
-        System.out.println(getOneDayFromWeatherArray(weather, 3,3));
+        System.out.println(getWeatherTableFull(weather, 3,3));
 //        getWeatherFromOpenMeteo(60.71, 28.75); //Выборг
 //        getWeatherFromOpenMeteo(60.00, 30.18); //Лахтинский разлив
 //        getWeatherFromOpenMeteo(59.95, 30.34); //Санкт-Петербург

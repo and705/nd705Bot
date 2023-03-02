@@ -1,5 +1,8 @@
 package com.nd705.myBot.entity.weather;
 
+
+
+
 public class Weather {
     private String time;
     private double temperature_2m;
