@@ -48,10 +48,101 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
     final BotConfig config;
-    static final String HELP_TEXT = "This bot is created to demonstrate \n\n " +
-            "You can execute commands from the main menu on the left or right\n\n" +
-            "Type /start to see a welcome message\n\n" +
-            "Type /help to see this message again";
+
+    static final String ABOUT_ME_TEXT = "Привет, меня зовут Андрей \n\n" +
+            "Я начинающий Java разработчик, а это pet проект:\n" +
+            "мой личный бот для парсинга нужной мне информации\n" +
+            "и прочих экспериментов\n\n" +
+            "Более подробная информация обо мне ниже:\n\n";
+
+    static final String EDUCATIONAL_MASTER = "*2011*\n" +
+            "*СПбГЭТУ\"ЛЭТИ\"*\n" +
+            "Магистр\n" +
+            "_Автоматизация технологических комплексов средствами компьютеризированных электроприводных систем_\n\n" +
+            "*2009*\n " +
+            "*СПбГЭТУ\"ЛЭТИ\"*\n" +
+            "Бакалавр\n" +
+            "_Электротехника, электромеханика и электротехнологии_\n";
+    static final String EXPERIENCE_WEST =
+            "*июнь 2022 \\- сентябрь 2022*\n" +
+            "*ООО Вест Инжиниринг*\n" +
+            "_Ведущий инженер проектов_\n\n" +
+            "Выполнение работ в рамках проекта «Система контроля и управления противопожарной защитой»:\n" +
+            "\\> разработка документов стадии технического проекта;\n" +
+            "\\> разработка/корректировка ТЗ, структурных схем, эксплуатационной документации;\n" +
+            "\\> работы по согласованию отдельных документов с заказчиком \\(устранение замечаний, корректировка\\);\n" +
+            "\\> разработка исходных данных для отдела проектирования \\(в части основных технических решений \\- структурных схем, спецификаций\\);\n" +
+            "\\> участие в подборе оборудования и предложение различных технических решений\n\n";
+    static final String EXPERIENCE_ES =
+            "*июль 2020 \\- июнь 2022*\n" +
+            "*ООО ПО Энергосистема*\n" +
+            "_Ведущий инженер АСУ_\n\n" +
+            "Основные обязанности:\n" +
+            "\\> разработка спецификаций и технических описаний раздела АСУ коммерческого предложения;\n" +
+            "\\> разработка конфигураций оборудования АСУ, программного обеспечения ПЛК и сенсорных панелей оператора;\n" +
+            "\\>  разработка проектной и рабочей документации АСУ\\.\n\n"+
+            "Выполненные проекты:\n" +
+            "\\> разработка и внедрение программного обеспечения системы мониторинга НКУ на базе ПЛК Modicon M251 и сенсорной графической панели Magelis GTU с интеграцией устройств нижнего уровня \\(мониторинг и дистанционное управление\\): Micrologic, ПЧ ATV630, устройства защиты двигателя TesysT и TesysU, Acti9 SmartLink;\n" +
+            "\\> интеграция программного обеспечения EcoStruxure Power Monitoring Expert: подключение устройств нижнего уровня со стандартными драйверами, конфигурирование драйверов для нестандартных устройств, отрисовка однолинейных схем, настройка экранных панелей, диаграмм и отчетов;\n" +
+            "\\> конфигурация ПЛК PhoenixContact для сбора данных c модулей ввода/вывода и внешних устройств по протоколу Modbus RTU и передачи на верхний уровень по стандартам МЭК 61850\\-8\\-1 \\(MMS\\), МЭК 60870\\-5\\-104\\.\n\n";
+
+    static final String EXPERIENCE_ELM =
+            "*январь 2017 \\- июль 2020*\n" +
+            "*Электронмаш*\n" +
+            "_Ведущий инженер АСУ_\n\n" +
+            "Основные обязанности:\n" +
+            "\\> разработка программного обеспечения и человеко\\-машинного интерфейса для систем мониторинга и управления СОПТ, НКУ, КТП, КРУ на базе ПЛК и сенсорной графической панели;\n" +
+            "\\> конфигурирование устройств МИП, МП РЗА в части коммуникационных настроек для интеграции на средний и верхний уровни по протоколам Modbus RTU/TCP и стандартам МЭК 61850\\-8\\-1 \\(MMS, GOOSE\\), МЭК 60870\\-5\\-104;\n" +
+            "\\> проведение ПНР, гарантийных и диагностических работ на объектах Ленэнерго, Газпром, ЗапСибНефтехим, Роспан, Вологдаэнерго\\.\n\n"+
+            "Выполненные проекты:\n" +
+            "\\> конфигурирование устройств для передачи данных на средний уровень по протоколам Modbus RTU/TCP, МЭК 61850, МЭК 60870\\-104: ЭНИП, ЭНКС, ЭНМВ производства Энергосервис, ПЛК Wago PFC200, терминалы РЗА ABB REF542, REF620, счетчики электроэнергии СЭТ;\n" +
+            "\\> конфигурирование контроллеров среднего уровня ARIS CS\\-M, ARIS MT200 для сбора данных и передачи на верхний уровень по стандартам МЭК 61850\\-8\\-1 \\(MMS\\), МЭК 60870\\-5\\-104;\n" +
+            "\\> подготовка данных и оборудования для интеграции в SCADA систему верхнего уровня\\.\n\n";
+    static final String EXPERIENCE_EA_RIVS =
+            "*октябрь 2010 \\- июнь 2014*\n" +
+            "*август 2016 \\- декабрь 2016*\n" +
+            "*ООО \"Электроавтоматика\"*\n" +
+            "_Инженер АСУ ТП_\n\n" +
+            "*июнь 2014 \\- август 2016*\n" +
+            "*СП ЗАО ИВС*\n" +
+            "_Инженер\\-программист \\(Аналитический центр\\)_\n\n" +
+            "Разработка программного обеспечения для ПЛК и HMI, SCADA для автоматизированных систем управления технологическими процессами\\. Основные направления \\- производство фанеры, котельные установки, насосные станции\\.\n";
+
+    static final String COURSE_NETOLOGY =
+            "*декабрь 2021 \\- июль 2022*\n" +
+                    "*Нетология*\n" +
+                    "_Java\\-разработчик_\n\n" +
+                    "\\- основы Java;\n" +
+                    "\\- алгоритмы и структуры данных;\n" +
+                    "\\- Collections;\n" +
+                    "\\- Git;\n" +
+                    "\\- Maven/Gradle;\n" +
+                    "\\- работа с файлами \\(CSV, XML, JSON\\);\n" +
+                    "\\- лямбда и streams;\n" +
+                    "\\- шаблоны проектирования;\n" +
+                    "\\- тестирование \\(JUnit, Mockito\\);\n" +
+                    "\\- основы web \\(HTTP и т\\.п\\.\\)\\.\n";
+    static final String COURSE_UDEMY =
+            "*сентябрь 2022 \\- по н\\.\\.*\n" +
+                    "*Udemy*\n" +
+                    "_Spring for begginers_\n\n" +
+                    "\\- Spring IoC, DI;\n" +
+                    "\\- AOP;\n" +
+                    "\\- JDBC, JPA, Hibernate;\n" +
+                    "\\- Spring MVC;\n" +
+                    "\\- Spring REST;\n" +
+                    "\\- Spring Security \\(maintences\\);\n" +
+                    "\\- Spring Boot \\(REST, JPA\\).";
+    static final String COURSE_JBA =
+            "*сентябрь 2021 \\- январь 2021*\n" +
+                    "*JetBrains Academy*\n" +
+                    "_Java backend developer_\n\n" +
+                    "\\- OOP;\n" +
+                    "\\- REST;\n" +
+                    "\\- Spring Boot;\n" +
+                    "\\- Exceptions;\n" +
+                    "\\- JSON;\n" +
+                    "\\- SQL;\n";
     static final String YES_BUTTON = "YES_BUTTON";
     static final String NO_BUTTON = "NO_BUTTON";
     static final String ERROR_TEXT = "Error occurred: ";
@@ -124,7 +215,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         startCammandRecieved(chatId, update.getMessage().getChat().getFirstName());
                         break;
 
-                    case "/parse":
+                    case "/parse", "В меню":
                         chooseInfoToParse(chatId, "Выберите из списка:");
 
                         break;
@@ -134,7 +225,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
 
                     case "/info":
-                        prepareAndSendMessage(chatId, "Here will be information about me");
+                        chooseResume(chatId, ABOUT_ME_TEXT);
                         break;
 
                     //Parse
@@ -170,7 +261,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     case "Вуокса":
                         chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Vuoksa"));
                         break;
-
+                    case "Назад":
+                        chooseCity(chatId, "Выберите город:");
+                        break;
 
 
                     case "Прогноз северного сияния":
@@ -178,9 +271,28 @@ public class TelegramBot extends TelegramLongPollingBot {
                         prepareAndSendMessage(chatId, "тут будет прогноз северного сияния");
                         break;
 
-                    case "Назад":
-                        chooseCity(chatId, "Выберите город:");
+
+                    case "Образование":
+                        chooseResume(chatId, EDUCATIONAL_MASTER);
                         break;
+                    case "Опыт работы":
+                        prepareAndSendMessage(chatId, EXPERIENCE_WEST);
+                        prepareAndSendMessage(chatId, EXPERIENCE_ES);
+                        prepareAndSendMessage(chatId, EXPERIENCE_ELM);
+                        chooseResume(chatId,EXPERIENCE_EA_RIVS );
+                        break;
+                    case "Курсы":
+                        prepareAndSendMessage(chatId, COURSE_UDEMY);
+                        prepareAndSendMessage(chatId, COURSE_JBA);
+                        chooseResume(chatId,COURSE_NETOLOGY );
+                        break;
+                    case "Контакты":
+                        prepareAndSendMessage(chatId, "https://github.com/and705");
+                        prepareAndSendMessage(chatId, "https://www.linkedin.com/in/nd705/");
+                        prepareAndSendMessage(chatId, "aandreev0705@gmail.com");
+                        chooseResume(chatId,"");
+                        break;
+
 
 
                     default:
@@ -327,6 +439,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setOneTimeKeyboard(true);
 
         message.setReplyMarkup(keyboardMarkup);
         executeMessage(message);
@@ -348,21 +461,23 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         row = new KeyboardRow();
         row.add("Санкт Петербург");
+        row.add("Москва");
         keyboardRows.add(row);
 
         row = new KeyboardRow();
-        row.add("Сиверское");
+        row.add("Сиверский");
         row.add("Лахта");
         row.add("Выборг");
         row.add("Вуокса");
         keyboardRows.add(row);
 
+
         row = new KeyboardRow();
-        row.add("Москва");
+        row.add("В меню");
         keyboardRows.add(row);
 
-
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setOneTimeKeyboard(true);
 
         message.setReplyMarkup(keyboardMarkup);
         executeMessage(message);
@@ -384,11 +499,49 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardRows.add(row);
 
         keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setOneTimeKeyboard(true);
 
         message.setReplyMarkup(keyboardMarkup);
         executeMessage(message);
     }
 
+
+    private void chooseResume(long chatId, String textToSend){
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        message.setParseMode("MarkdownV2");
+        //клавиатура
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        // первый ряд
+        KeyboardRow row = new KeyboardRow();
+        row.add("Образование");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Опыт работы");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Курсы");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Контакты");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("В начало");
+        keyboardRows.add(row);
+
+
+        keyboardMarkup.setKeyboard(keyboardRows);
+
+        message.setReplyMarkup(keyboardMarkup);
+        executeMessage(message);
+    }
     private void executeEditMessageText(String text, long chatId, long messageId) {
         EditMessageText message = new EditMessageText();
         message.setChatId(String.valueOf(chatId));
