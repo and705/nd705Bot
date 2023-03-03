@@ -2,6 +2,7 @@ package com.nd705.myBot.service.parsrers;
 
 
 import com.nd705.myBot.entity.weather.Weather;
+import com.vdurmont.emoji.EmojiParser;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -62,12 +63,13 @@ public class ParseWeatherService {
             weather[i] = new Weather();
             weather[i].setTime((String)time.get(i));
             weather[i].setTemperature_2m((double)temperature_2m.get(i));
+            weather[i].setCloudcover((long)cloudcover.get(i));
             weather[i].setRelativehumidity_2m((long)relativehumidity_2m.get(i));
             weather[i].setPrecipitation_probability((long)precipitation_probability.get(i));
             weather[i].setWindspeed_10m((double)windspeed_10m.get(i));
             weather[i].setWinddirection_10m((long)winddirection_10m.get(i));
             weather[i].setWindgusts_10m((double)windgusts_10m.get(i));
-            weather[i].setCloudcover((long)cloudcover.get(i));
+
 
         }
 
@@ -106,15 +108,35 @@ public class ParseWeatherService {
 
     }
 
+    public static String getWeatherEmoji(Weather[] weather, int days, int hours){
+        StringBuilder forecast = new StringBuilder();
+
+        forecast.append(String.format("`"));
+        for (int i = 0; i < days*24; i+=hours) {
+            if (i % 24 == 0) {
+                forecast.append("\n");
+                forecast.append(weather[i].getTime() + "\n");
+            }
+            forecast.append(String.format("%2s:%1s%4s°%5sм/с %2s%4sм/с\n",
+                    (i) % 24,
+            weather[i].getEmogiCloudcover(),
+            weather[i].getTemperature_2m(),
+            weather[i].getEmogiWindspeed_10m()+weather[i].getWindspeed_10m(),
+            weather[i].getEmogiWinddirection_10m(),
+            weather[i].getEmogiWindgusts_10m() + weather[i].getWindgusts_10m()));
+
+        }
+        forecast.append(String.format("`"));
+        return EmojiParser.parseToUnicode(forecast.toString());
+
+    }
+
     public static void main(String[] args) throws ParseException {
 
         Weather[] weather = getWeatherFromOpenMeteo(16.07, 108.22); //Дананг
-        System.out.println(getWeatherTableFull(weather, 3,3));
-//        getWeatherFromOpenMeteo(60.71, 28.75); //Выборг
-//        getWeatherFromOpenMeteo(60.00, 30.18); //Лахтинский разлив
-//        getWeatherFromOpenMeteo(59.95, 30.34); //Санкт-Петербург
-//        getWeatherFromOpenMeteo(59.36, 30.10); //Сиверский
-//        getWeatherFromOpenMeteo(60.88, 29.83); //Вуокса
+        System.out.println(getWeatherEmoji(weather, 3,3));
+
+
 
     }
 }

@@ -56,7 +56,7 @@ public class ParseBankService {
             System.out.println(result);
             return result.toString();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             result.append("не удалось получить данные с https://fincabank.kg");
             return result.toString();
         }
@@ -89,7 +89,7 @@ public class ParseBankService {
             System.out.println(result);
             return result.toString();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             result.append("не удалось получить данные с https://demirbank.kg");
             return result.toString();
         }
@@ -111,7 +111,7 @@ public class ParseBankService {
             System.out.println(result);
             return result.toString();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             result.append("не удалось получить данные с https://demirbank.kg");
             return result.toString();
         }

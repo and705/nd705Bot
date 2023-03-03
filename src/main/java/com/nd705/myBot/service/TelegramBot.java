@@ -189,10 +189,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
+    private Weather[] weather = new Weather[nWeatherLines];
     @Override
     public void onUpdateReceived(Update update) {
         StringBuilder forecast;
-        Weather[] weather;
+
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
@@ -239,28 +240,33 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
 
                     case "Да Нанг":
-                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Danang"));
+                        chooseTable(chatId, getCityWeather(weather, "Danang", true));
                         break;
 
                     case "Санкт Петербург":
-                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "SPb"));
+                        chooseTable(chatId, getCityWeather(weather, "SPb", true));
                         break;
 
                     case "Выборг":
-                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Vyborg"));
+                        chooseTable(chatId, getCityWeather(weather, "Vyborg", true));
                         break;
 
                     case "Лахта":
-                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Lahta"));
+                        chooseTable(chatId, getCityWeather(weather, "Lahta", true));
                         break;
 
                     case "Сиверский":
-                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Siverskii"));
+                        chooseTable(chatId, getCityWeather(weather, "Siverskii", true));
                         break;
 
                     case "Вуокса":
-                        chooseBack(chatId, getCityWeather(new Weather[nWeatherLines], "Vuoksa"));
+                        chooseTable(chatId, getCityWeather(weather, "Vuoksa", true));
                         break;
+
+                    case "Подробнее":
+                        chooseBack(chatId, getWeatherTable(weather));
+                        break;
+
                     case "Назад":
                         chooseCity(chatId, "Выберите город:");
                         break;
@@ -408,10 +414,21 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(message);
     }
 
-    private String getCityWeather(Weather[] weather,  String city){
+    private String getCityWeather(Weather[] weather,  String city, boolean emogi){
         weather = ParseWeatherService.getWeatherFromOpenMeteo(cities.get(city).getLatitude(), cities.get(city).getLongitude());
         StringBuilder forecast = new StringBuilder("Прогноз погоды в " + cities.get(city).getCityName() + "\n\n");
-        forecast.append(ParseWeatherService.getWeatherTableFull(weather, forcastDays, forcastHoursInt));
+        if (emogi){
+            forecast.append(ParseWeatherService.getWeatherEmoji(weather, forcastDays, forcastHoursInt));
+        } else {
+            forecast.append(ParseWeatherService.getWeatherTableFull(weather, forcastDays, forcastHoursInt));
+        }
+        this.weather = weather;
+        return forecast.toString();
+    }
+
+    private String getWeatherTable(Weather[] weather){
+         StringBuilder forecast = new StringBuilder();
+         forecast.append(ParseWeatherService.getWeatherTableFull(weather, forcastDays, forcastHoursInt));
         return forecast.toString();
     }
 
@@ -496,6 +513,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         KeyboardRow row = new KeyboardRow();
         row.add("Назад");
 
+        keyboardRows.add(row);
+
+        keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setOneTimeKeyboard(true);
+
+        message.setReplyMarkup(keyboardMarkup);
+        executeMessage(message);
+    }
+    private void chooseTable(long chatId, String textToSend){
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        message.setParseMode("MarkdownV2");
+        //клавиатура
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        // первый ряд
+        KeyboardRow row = new KeyboardRow();
+        row.add("Подробнее");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Назад");
         keyboardRows.add(row);
 
         keyboardMarkup.setKeyboard(keyboardRows);
