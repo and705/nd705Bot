@@ -41,8 +41,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AdsRepository adsRepository;
+
 
 
 
@@ -615,15 +614,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(message);
     }
 //    @Scheduled(cron = "${cron.scheduler}")
-    private void sendAds(){
-        var ads = adsRepository.findAll();
-        var users = userRepository.findAll();
 
-        for(Ads ad: ads){
-            for (User user : users) {
-                prepareAndSendMessage(user.getChatId(), ad.getAd());
-            }
-        }
-    }
 
 }
