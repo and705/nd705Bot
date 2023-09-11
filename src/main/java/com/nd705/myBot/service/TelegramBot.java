@@ -1,6 +1,7 @@
 package com.nd705.myBot.service;
 
 
+import ch.qos.logback.classic.Logger;
 import com.nd705.myBot.config.BotConfig;
 import com.nd705.myBot.entity.Ads;
 import com.nd705.myBot.entity.AdsRepository;
@@ -27,6 +28,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -229,9 +231,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
 
                     //Parse
-                    case "Курс обмена ЦБ, Кыргызстан":
+                    case "Курс обмена ЦБ, Кыргызстан", "/bank":
 
-                        prepareAndSendMessage(chatId, ParseBankService.parseKgBank());
+                        prepareAndSendMessage(chatId,
+                                ParseBankService.parseKgBank() +
+                                        ParseBankService.parseKgBankBakai() +
+                                        ParseBankService.parseMir()
+                        );
+
                         break;
                     //Parse / погода
                     case "Погода":

@@ -38,13 +38,13 @@ public class ParseWeatherService {
             System.out.println("не удалось получить данные от https://api.open-meteo.com");
         }
 
-        Object JSONobj = null;
-        try {
-            JSONobj = new JSONParser().parse(json);
-        } catch (ParseException e) {
-            System.out.println("Couldn't parse weather: "+e.getMessage());
-        }
-        JSONObject jo = (JSONObject) JSONobj;
+            Object JSONobj = null;
+            try {
+                JSONobj = new JSONParser().parse(json);
+            } catch (ParseException e) {
+                System.out.println("Couldn't parse weather: "+e.getMessage());
+            }
+            JSONObject jo = (JSONObject) JSONobj;
         JSONObject hourly = (JSONObject) jo.get("hourly");
 
 

@@ -1,13 +1,21 @@
 package com.nd705.myBot.service.parsrers;
 
+import com.nd705.myBot.entity.weather.Weather;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 @Service
 public class ParseBankService {
@@ -26,7 +34,14 @@ public class ParseBankService {
         return result.toString();
 
     }
+    public static String parseKgBankBakai(){
+        StringBuilder result =new StringBuilder();
+        result.append(parseBakai());
+        result.append("\n");
 
+        return result.toString();
+
+    }
 
 
 
@@ -36,7 +51,13 @@ public class ParseBankService {
         public static String parseFincaBank(){
             StringBuilder result =new StringBuilder();
         try {
-            Document document = Jsoup.connect("https://fincabank.kg/продукты/обмен-валют/").get();
+            String fincaSite = "https://fincabank.kg";
+
+            Document document = Jsoup.connect(fincaSite)
+                    .get();
+
+
+
             List<Element> valutes = document.select("div.fif-planes-col2");
 
             result.append("*FINCA BANK*\n");
@@ -117,6 +138,80 @@ public class ParseBankService {
         }
 
     }
+
+    public static String parseBakai() {
+        StringBuilder result =new StringBuilder();
+        String json = new String();
+        JSONParser parser = new JSONParser();
+        try {
+            json = Jsoup.connect("https://bakai24.bakai.kg/v1/currency_rates")
+                    .ignoreContentType(true)
+                    .execute()
+                    .body();
+        } catch (IOException e) {
+            System.out.println("не удалось получить данные от https://bakai24.bakai.kg/v1/currency_rates");
+        }
+
+
+        JSONObject  jsonObject  = null;
+        try {
+            jsonObject  = (JSONObject ) parser.parse(json);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        JSONArray currencies = (JSONArray) jsonObject.get("currencies");
+        JSONObject usd = (JSONObject )currencies.get(0);
+        JSONObject rub = (JSONObject )currencies.get(2);
+
+
+
+        result.append("*BAKAI BANK*\n");
+
+        result.append(String.format("`|%-7s|%-7s|%-7s|\n", "ВАЛЮТА","ПОКУПКА","ПРОДАЖА"));
+        result.append(String.format("|%-7s|%-7s|%-7s|\n", "USD",usd.get("buy").toString(),usd.get("sell").toString()));
+        result.append(String.format("|%-7s|%-7s|%-7s|`\n", "RUB",rub.get("buy").toString(),rub.get("sell").toString()));
+
+        float rubusd = Float.parseFloat(usd.get("sell").toString()) / Float.parseFloat(rub.get("buy").toString());
+        float usdrub = Float.parseFloat(usd.get("buy").toString()) / Float.parseFloat(rub.get("sell").toString());
+        result.append(String.format("RUB->USD: %.2f\n", rubusd));
+        result.append(String.format("USD->RUB: %.2f\n", usdrub));
+
+        result.append("онлайн переводы\n");
+        result.append(String.format("|%-7s|%-7s|%-7s|\n", "RUB",rub.get("trans_buy").toString(),rub.get("trans_sell").toString()));
+
+        System.out.println(result);
+        return result.toString();
+    }
+
+
+    public static String parseMir(){
+        StringBuilder result =new StringBuilder();
+        try {
+            Document document = Jsoup.connect("https://mironline.ru/support/list/kursy_mir/").get();
+            Element table = document.select("table").first();
+            Elements rows = table.select("tr");
+            String som = rows.get(7).select("td").get(1).text().replace(',','.');
+            String vnd = rows.get(4).select("td").get(1).text().replace(',','.');
+
+            float somF = Math.round(1 / Float.parseFloat(som) * 1000);
+            int vndF = Math.round(1000 / Float.parseFloat(vnd));
+
+            result.append("*МИР*" + "\n");
+            result.append("kg: " + som + "(" + somF / 1000 +")"  + "\n" );
+            result.append("vnd: " + vnd + "(" + vndF +")" + "\n");
+
+
+            return result.toString();
+
+        } catch (Exception e) {
+            result.append("не удалось получить данные с https://mironline.ru/support/list/kursy_mir/");
+            return result.toString();
+        }
+
+    }
+
+
+
 
 
 

@@ -1,8 +1,9 @@
 package com.nd705.myBot.config;
 
 import com.nd705.myBot.service.TelegramBot;
-import lombok.extern.slf4j.Slf4j;
 
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
