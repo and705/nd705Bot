@@ -13,10 +13,8 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
 @Service
 public class ParseBankService {
     public static String parseKgBank(){
@@ -50,14 +48,23 @@ public class ParseBankService {
 
         public static String parseFincaBank(){
             StringBuilder result =new StringBuilder();
-        try {
+            Document document;
             String fincaSite = "https://fincabank.kg";
 
-            Document document = Jsoup.connect(fincaSite)
+        try {
+            Connection.Response res = Jsoup.connect(fincaSite)
+                    .method(Connection.Method.GET)
+                    .execute();
+            Map<String, String> cookies = res.cookies();
+
+            document = Jsoup.connect(fincaSite)
+                    .cookies(cookies)
                     .get();
 
-
-
+        } catch (Exception e) {
+            result.append("не удалось получить данные с https://fincabank.kg");
+            return result.toString();
+        }
             List<Element> valutes = document.select("div.fif-planes-col2");
 
             result.append("*FINCA BANK*\n");
@@ -76,11 +83,6 @@ public class ParseBankService {
 
             System.out.println(result);
             return result.toString();
-
-        } catch (Exception e) {
-            result.append("не удалось получить данные с https://fincabank.kg");
-            return result.toString();
-        }
 
     }
 
@@ -178,6 +180,8 @@ public class ParseBankService {
 
         result.append("онлайн переводы\n");
         result.append(String.format("|%-7s|%-7s|%-7s|\n", "RUB",rub.get("trans_buy").toString(),rub.get("trans_sell").toString()));
+        float usdrubOnline = Float.parseFloat(usd.get("buy").toString()) / Float.parseFloat(rub.get("trans_buy").toString());
+        result.append(String.format("RUB->USD: %.2f\n", usdrubOnline));
 
         System.out.println(result);
         return result.toString();
